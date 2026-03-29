@@ -1,160 +1,124 @@
 # Tender.AI — Construction Tender Analysis MVP
 
-AI-powered tender analyst platform for construction professionals in Australia. The product helps estimators and project managers compare subcontractor quotes, identify risks, surface opportunities, and make faster award decisions — all from a single workspace.
+AI-powered tender analyst platform for construction professionals in Australia. Helps estimators and project managers compare subcontractor quotes, identify risks, surface opportunities, and make faster award decisions — all from a single workspace.
+
+> **This repo is a single-file frontend demo.** No Node.js, no build tools, no dependencies to install. Open `tender_analyst_demo.html` in any browser and it works.
+
+---
+
+## Getting Started
+
+**No setup required.**
+
+1. Clone or download this repo
+2. Open `tender_analyst_demo.html` in Chrome, Edge, or Firefox
+3. That's it
+
+The file is fully self-contained — all HTML, CSS, and JavaScript are inline. An internet connection is only needed on first open to cache Google Fonts and Lucide Icons from CDN. After that, it works offline.
 
 ---
 
 ## What's in This Repo
 
-| Path | Purpose |
-|------|---------|
-| `tender_analyst_demo.html` | **Primary demo deliverable** — standalone single-file frontend prototype for client presentations. No build required; open directly in any browser. |
-| `app/` | Next.js 15 app router — marketing site (`/`) and embedded demo route (`/demo`) |
-| `components/` | React component library — marketing sections and demo UI components |
-| `lib/` | Shared utilities (`cn` helper for Tailwind class merging) |
-
----
-
-## Quick Start — Next.js App
-
-Requires Node.js 18+ and pnpm.
-
-```bash
-# Install dependencies
-pnpm install
-
-# Start development server (Turbopack)
-pnpm dev
-
-# Production build
-pnpm build
-
-# Start production server
-pnpm start
-
-# Lint
-pnpm lint
 ```
-
-Development server runs at `http://localhost:3000`.
-
----
-
-## Quick Start — Standalone Demo
-
-No build step needed.
-
-```bash
-# Open directly in your browser
-open tender_analyst_demo.html
+Construction-TenderAnalysisMVP/
+├── tender_analyst_demo.html        # The entire application — open this in a browser
+├── TenderAI_Demo_Talking_Script.md # Screen-record script for client sales demos
+├── CLAUDE.md                       # AI assistant instructions for working in this repo
+├── README.md                       # This file
+├── .gitignore
+└── .gitattributes
 ```
-
-Or double-click `tender_analyst_demo.html` in Finder / File Explorer.
-
-The demo file is fully self-contained — all HTML, CSS, and JavaScript are inline. It requires an internet connection only to load Google Fonts and Lucide Icons from CDN on first open.
 
 ---
 
 ## Tech Stack
 
-### Next.js App
-- **Framework:** Next.js 15 (App Router, Turbopack)
-- **UI Library:** React 19
-- **Language:** TypeScript 5.7
-- **Styling:** Tailwind CSS 3.4 with CSS custom properties
-- **Icons:** Lucide React
-- **Charts:** Recharts
-- **Class utilities:** clsx + tailwind-merge via `cn()` helper
+Plain web standards. Zero build tooling.
 
-### Standalone Demo (`tender_analyst_demo.html`)
-- Plain HTML5 / CSS3 / vanilla JavaScript — no frameworks, no build tools
-- Google Fonts: DM Sans (UI) + Fraunces (brand/logo)
-- Lucide Icons via unpkg CDN
-- Dark theme default with full light/dark toggle
-- All dummy data is hardcoded in the `<script>` block
+| Layer | Technology |
+|-------|-----------|
+| Markup | HTML5 |
+| Styling | CSS3 with custom properties (no preprocessor) |
+| Logic | Vanilla JavaScript (ES2020, no framework) |
+| Typography | Google Fonts — DM Sans (UI) + Fraunces (brand) |
+| Icons | Lucide Icons via unpkg CDN |
+| Hosting | Any static file server, or shared directly as a file |
 
 ---
 
-## Project Structure
+## Demo Features
 
-```
-Construction-TenderAnalysisMVP/
-├── tender_analyst_demo.html        # Standalone client demo (primary deliverable)
-├── TenderAI_Demo_Talking_Script.md # Screen-record script for sales demos
-│
-├── app/
-│   ├── layout.tsx                  # Root layout, global fonts + metadata
-│   ├── page.tsx                    # Marketing homepage (/, assembles section components)
-│   ├── globals.css                 # CSS custom properties, dark/light theme variables
-│   └── demo/
-│       └── page.tsx                # Demo route (/demo)
-│
-├── components/
-│   ├── header.tsx                  # Marketing site navigation
-│   ├── hero.tsx                    # Landing hero section
-│   ├── stats.tsx                   # Portfolio stats strip
-│   ├── features.tsx                # Feature highlights grid
-│   ├── how-it-works.tsx            # Process walkthrough section
-│   ├── pricing.tsx                 # Pricing tiers
-│   ├── cta.tsx                     # Call-to-action section
-│   ├── footer.tsx                  # Site footer
-│   └── demo/
-│       ├── demo-header.tsx         # Demo app top bar
-│       ├── sidebar.tsx             # Demo app left navigation
-│       ├── dashboard.tsx           # Demo app main dashboard
-│       ├── tender-analysis.tsx     # Tender detail / analysis view
-│       └── tender-upload.tsx       # Upload UI component
-│
-├── lib/
-│   └── utils.ts                    # cn() Tailwind class merge helper
-│
-├── next.config.mjs                 # Next.js config (ESLint + TS build errors suppressed)
-├── tailwind.config.ts              # Tailwind theme (CSS var tokens, dark mode via class)
-├── tsconfig.json                   # TypeScript config
-└── package.json                    # Dependencies and scripts
-```
+The `tender_analyst_demo.html` is a fully interactive single-page application:
+
+**Global Toolbar** — Always-visible portfolio metrics (total projects, portfolio value, avg cost, avg prelims %, avg program duration) with a live light/dark theme toggle. Clicking the Tender.AI logo returns to the homepage from anywhere.
+
+**Sidebar** — ChatGPT-style project list showing all 6 Australian construction projects with value and status badges. Includes live search filtering and a "+ New Project" button that triggers the file upload flow.
+
+**Homepage** — Search-engine landing with a large input field, a drag-and-drop upload zone, and four suggested prompt chips that navigate into the active demo project.
+
+**Project View** — Clicking any project loads a dashboard strip with 4 metric cards (value, duration, prelims %, trade packages) and 4 AI insight cards (Key Insight, Risk, Opportunity, Recommendation), followed by a full AI chat workspace.
+
+**Chat Persistence** — Every conversation is stored per project in memory. Navigating between projects and returning preserves the full thread — nothing is lost.
+
+**File Upload Flow** — Drag any file anywhere on screen to trigger the upload animation:
+- Body-level drag hint (golden border) on drag-enter
+- Animated modal: file icon bounce with particle burst
+- Phase 1: Upload progress bar 0→100% with live % counter and "Document Uploaded Successfully" status
+- Phase 2: Analysis bar 0→100% with "Analysing Document" and sub-text
+- Completion: Animated green checkmark + "Document Analysis Complete"
+- Auto-creates "Brighton Waterfront Precinct" ($7.2M) in the sidebar with full dummy data
+- Global toolbar metrics update instantly (12→13 projects, $47.3M→$54.5M portfolio value)
 
 ---
 
-## Demo File — Key Features
+## Dummy Data
 
-The `tender_analyst_demo.html` implements a full single-page application:
+All data is hardcoded in the `<script>` block of `tender_analyst_demo.html`. No real documents are processed.
 
-- **Global toolbar** — always-visible portfolio metrics (13 projects, $54.5M portfolio value, avg cost, prelims %, avg duration) + brand logo + light/dark theme toggle
-- **Sidebar** — ChatGPT-style project list with 6 Australian construction projects, live search filtering, "+ New Project" upload trigger
-- **Homepage** — Search-engine style landing with input, drag-and-drop upload zone, suggested prompt chips
-- **Project view** — Per-project dashboard strip (4 metric cards + 4 AI insight cards) above a full AI chat workspace
-- **Chat persistence** — Conversation history stored per project; survives navigation between projects
-- **File upload flow** — Drag any file anywhere on screen → animated upload modal (progress bar, status messages, checkmark) → new project auto-created with dummy data → global portfolio metrics update
+**Portfolio (initial):** 12 projects · $47.3M · Avg $3.94M · 8.2% prelims · 14.3 mo avg duration
 
-All data is dummy/hardcoded. No backend, no API calls.
+**6 sidebar projects:**
 
----
+| Project | Value | Status |
+|---------|-------|--------|
+| Westfield Moorabbin Extension | $8.2M | Active |
+| Dandenong Council Civic Centre | $5.7M | Under Review |
+| Clayton Road Mixed-Use | $3.1M | Complete |
+| Frankston Hospital Wing B | $12.4M | Active |
+| Cranbourne Logistics Hub | $2.9M | Draft |
+| Springvale Town Centre Upgrade | $4.6M | Under Review |
 
-## Environment
+**New project added on any file upload:** Brighton Waterfront Precinct — $7.2M — Active
 
-No environment variables are required for the demo. The Next.js app has no `.env` dependencies in the current MVP state.
+**Westfield Moorabbin** has a pre-loaded AI chat showing 2 full exchanges (earthworks quote comparison + risk exposure table).
 
 ---
 
 ## Deployment
 
-The Next.js app can be deployed to Vercel with zero configuration:
+The demo can be hosted as a static file on any platform:
 
 ```bash
-# Deploy to Vercel (requires Vercel CLI)
-vercel deploy
+# GitHub Pages — just enable Pages on the repo root
+# Netlify / Vercel — drag the folder into the dashboard
+# Any web server
+cp tender_analyst_demo.html /var/www/html/index.html
 ```
 
-The standalone `tender_analyst_demo.html` can be hosted on any static file server or shared directly as a file attachment for client demos.
+Or share the `.html` file directly as an email attachment for client demos — it opens self-contained in any browser.
 
 ---
 
-## Contributing
+## Extending the Demo
 
-This is a pre-sales demo prototype. When extending the codebase:
+All changes are made directly in `tender_analyst_demo.html`. Key areas:
 
-1. Standalone demo changes go in `tender_analyst_demo.html` only — keep it single-file
-2. Product/marketing site changes go in `app/` and `components/`
-3. Run `pnpm lint` before committing Next.js changes
-4. All dummy data for the demo is maintained in the `<script>` block of the HTML file
+- **Dummy data** — `PROJECTS` array and `PRELOADED_CHAT` array in the `<script>` block
+- **Portfolio metrics** — `portfolio` object and `renderToolbarMetrics()`
+- **Upload animation timing** — `startUploadFlow()` function, `setTimeout` delays and `animateBar()` duration arguments
+- **AI chat responses** — `CANNED` array (cycles through on each new message)
+- **Theme colours** — CSS custom properties in `[data-theme="dark"]` and `[data-theme="light"]` blocks at the top of `<style>`
+- **New project on upload** — `addNewProject()` function (hardcoded to "Brighton Waterfront Precinct" for demo consistency)
+
+See `CLAUDE.md` for full architecture details if using an AI assistant to make changes.

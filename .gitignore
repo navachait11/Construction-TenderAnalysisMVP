@@ -1,1 +1,18 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Backup archives — keep locally, don't commit
+*.zip
+
+# Next.js (legacy — no longer in this repo, prevent re-adding accidentally)
+.next/
 node_modules/
+out/
+.vercel/
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
