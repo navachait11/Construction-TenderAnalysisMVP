@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tender.AI — AI Tender Analyst</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,400&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <style>
+    /* ============================================================
+       THEME SYSTEM
+    ============================================================ */
+    [data-theme="dark"] {
+      --bg-base:       #0D1117;
+      --bg-surface:    #161B22;
+      --bg-elevated:   #1C2128;
+      --bg-subtle:     #21262D;
+      --bg-hover:      #2D333B;
+      --border:        #30363D;
+      --border-subtle: #21262D;
+      --text-primary:  #E6EDF3;
+      --text-secondary:#8B949E;
+      --text-muted:    #6E7681;
+      --accent:        #F59E0B;
+      --accent-soft:   rgba(245,158,11,0.12);
+      --accent-border: rgba(245,158,11,0.25);
+      --green:         #3FB950;
+      --green-soft:    rgba(63,185,80,0.12);
+      --red:           #F85149;
+      --red-soft:      rgba(248,81,73,0.12);
+      --blue:          #58A6FF;
+      --blue-soft:     rgba(88,166,255,0.12);
+      --shadow-sm:     0 1px 3px rgba(0,0,0,0.4);
+      --shadow-md:     0 4px 16px rgba(0,0,0,0.55);
+    }
+    [data-theme="light"] {
+      --bg-base:       #F0EBE3;
+      --bg-surface:    #FAF8F5;
+      --bg-elevated:   #FFFFFF;
+      --bg-subtle:     #EDE7DF;
+      --bg-hover:      #E5DDD4;
+      --border:        #D4CFC8;
+      --border-subtle: #E5DDD4;
+      --text-primary:  #1C1917;
+      --text-secondary:#57534E;
+      --text-muted:    #A8A29E;
+      --accent:        #B45309;
+      --accent-soft:   rgba(180,83,9,0.10);
+      --accent-border: rgba(180,83,9,0.22);
+      --green:         #16A34A;
+      --green-soft:    rgba(22,163,74,0.10);
+      --red:           #DC2626;
+      --red-soft:      rgba(220,38,38,0.10);
+      --blue:          #1D4ED8;
+      --blue-soft:     rgba(29,78,216,0.10);
+      --shadow-sm:     0 1px 3px rgba(0,0,0,0.08);
+      --shadow-md:     0 4px 16px rgba(0,0,0,0.12);
+    }
+
+    /* ============================================================
+       RESET & BASE
+    ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      font-family: 'DM Sans', system-ui, sans-serif;
+      background: var(--bg-base);
+      color: var(--text-primary);
+      transition: background 0.3s ease, color 0.3s ease;
+      -webkit-font-smoothing: antialiased;
+    }
+    button { font-family: inherit; }
+    input, textarea { font-family: inherit; }
+
+    /* ============================================================
+       APP SHELL
+    ============================================================ */
+    .app { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+    /* ============================================================
+       TOOLBAR
+    ============================================================ */
+    .toolbar {
+      flex-shrink: 0; height: 52px;
+      display: flex; align-items: center;
+      padding: 0 14px; gap: 10px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      z-index: 200;
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+    .toolbar-brand {
+      display: flex; align-items: center; gap: 9px;
+      cursor: pointer; flex-shrink: 0; user-select: none;
+    }
+    .brand-mark {
+      width: 30px; height: 30px; border-radius: 7px;
+      background: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: background 0.3s ease;
+    }
+    .brand-name {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 17px; font-weight: 700;
+      letter-spacing: -0.4px; color: var(--text-primary);
+      transition: color 0.3s ease;
+    }
+    .brand-name em { font-style: normal; color: var(--accent); transition: color 0.3s ease; }
+    .toolbar-sep { width: 1px; height: 20px; background: var(--border); flex-shrink: 0; transition: background 0.3s ease; }
+    .toolbar-metrics { display: flex; align-items: center; gap: 5px; flex: 1; min-width: 0; }
+    .metric-pill {
+      display: flex; align-items: center; gap: 5px;
+      padding: 4px 10px; border-radius: 100px;
+      background: var(--bg-subtle); border: 1px solid var(--border-subtle);
+      white-space: nowrap; transition: background 0.3s ease, border-color 0.3s ease;
+    }
+    .metric-pill-label { font-size: 10.5px; font-weight: 500; color: var(--text-muted); letter-spacing: 0.2px; }
+    .metric-pill-value { font-size: 12px; font-weight: 700; color: var(--accent); transition: color 0.3s ease; }
+    .toolbar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .icon-btn {
+      width: 34px; height: 34px; border-radius: 8px;
+      border: 1px solid var(--border); background: var(--bg-subtle);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: var(--text-secondary); transition: all 0.2s ease;
+    }
+    .icon-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+
+    /* ============================================================
+       BODY AREA
+    ============================================================ */
+    .body-area { flex: 1; display: flex; overflow: hidden; }
+
+    /* ============================================================
+       SIDEBAR
+    ============================================================ */
+    .sidebar {
+      width: 256px; flex-shrink: 0;
+      display: flex; flex-direction: column;
+      background: var(--bg-surface);
+      border-right: 1px solid var(--border);
+      overflow: hidden; transition: background 0.3s ease, border-color 0.3s ease;
+    }
+    .sidebar-header {
+      padding: 10px 10px 8px;
+      border-bottom: 1px solid var(--border-subtle);
+      transition: border-color 0.3s ease;
+    }
+    .new-project-btn {
+      width: 100%; display: flex; align-items: center; justify-content: center;
+      gap: 7px; padding: 8px 12px; border-radius: 8px;
+      border: 1px dashed var(--border); background: transparent;
+      color: var(--text-secondary); font-size: 13px; font-weight: 500;
+      cursor: pointer; transition: all 0.2s ease; margin-bottom: 8px;
+    }
+    .new-project-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+    .sidebar-search {
+      display: flex; align-items: center; gap: 7px;
+      padding: 6px 10px; border-radius: 7px;
+      border: 1px solid var(--border); background: var(--bg-subtle);
+      transition: all 0.2s ease, background 0.3s ease;
+    }
+    .sidebar-search:focus-within { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+    .sidebar-search input { flex: 1; border: none; outline: none; background: transparent; font-size: 13px; color: var(--text-primary); }
+    .sidebar-search input::placeholder { color: var(--text-muted); }
+    .sidebar-section-label {
+      padding: 10px 12px 5px;
+      font-size: 9.5px; font-weight: 700; letter-spacing: 1.2px;
+      text-transform: uppercase; color: var(--text-muted);
+    }
+    .sidebar-projects { flex: 1; overflow-y: auto; padding: 2px 6px 10px; }
+    .sidebar-projects::-webkit-scrollbar { width: 3px; }
+    .sidebar-projects::-webkit-scrollbar-track { background: transparent; }
+    .sidebar-projects::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .project-item {
+      padding: 9px 10px; border-radius: 8px;
+      cursor: pointer; transition: background 0.15s ease;
+      margin-bottom: 1px; border: 1px solid transparent;
+    }
+    .project-item:hover { background: var(--bg-hover); }
+    .project-item.active { background: var(--accent-soft); border-color: var(--accent-border); }
+    /* New project highlight animation */
+    .project-item.newly-added {
+      animation: newProjectPulse 1.5s ease 3;
+    }
+    @keyframes newProjectPulse {
+      0%,100% { background: var(--accent-soft); border-color: var(--accent-border); }
+      50%      { background: rgba(245,158,11,0.25); border-color: rgba(245,158,11,0.5); }
+    }
+    .project-item-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 6px; margin-bottom: 3px; }
+    .project-item-name { font-size: 13px; font-weight: 500; color: var(--text-primary); line-height: 1.3; transition: color 0.2s ease; }
+    .project-item.active .project-item-name { color: var(--accent); }
+    .project-item-meta { display: flex; align-items: center; gap: 6px; }
+    .project-item-value { font-size: 12px; color: var(--text-muted); font-weight: 500; }
+    .badge {
+      display: inline-flex; align-items: center;
+      font-size: 10px; font-weight: 600; padding: 2px 7px;
+      border-radius: 100px; white-space: nowrap; letter-spacing: 0.2px;
+    }
+    .badge-active   { background: var(--green-soft); color: var(--green); }
+    .badge-review   { background: var(--blue-soft);  color: var(--blue);  }
+    .badge-complete { background: var(--bg-subtle);  color: var(--text-muted); }
+    .badge-draft    { background: var(--bg-subtle);  color: var(--text-muted); border: 1px dashed var(--border); }
+    .badge-new      { background: rgba(245,158,11,0.2); color: var(--accent); border: 1px solid var(--accent-border); }
+
+    /* ============================================================
+       MAIN CONTENT
+    ============================================================ */
+    .main {
+      flex: 1; display: flex; flex-direction: column;
+      overflow: hidden; background: var(--bg-base);
+      transition: background 0.3s ease;
+    }
+
+    /* ============================================================
+       HOMEPAGE
+    ============================================================ */
+    .homepage {
+      flex: 1; display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: 40px 24px 60px; overflow-y: auto;
+      animation: fadeSlideUp 0.35s ease both;
+    }
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .hp-eyebrow {
+      font-size: 11px; font-weight: 600; letter-spacing: 2px;
+      text-transform: uppercase; color: var(--accent); margin-bottom: 16px;
+      transition: color 0.3s ease;
+    }
+    .hp-headline {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: clamp(36px, 5vw, 58px); font-weight: 700;
+      line-height: 1.08; letter-spacing: -2px;
+      text-align: center; color: var(--text-primary);
+      margin-bottom: 14px; transition: color 0.3s ease;
+    }
+    .hp-headline em { font-style: italic; color: var(--accent); transition: color 0.3s ease; }
+    .hp-sub {
+      font-size: 16px; color: var(--text-secondary);
+      text-align: center; line-height: 1.65; max-width: 420px;
+      margin-bottom: 36px; transition: color 0.3s ease;
+    }
+    .hp-input-wrap { width: 100%; max-width: 640px; position: relative; margin-bottom: 12px; }
+    .hp-input {
+      width: 100%; padding: 15px 52px 15px 20px;
+      border-radius: 12px; border: 1.5px solid var(--border);
+      background: var(--bg-surface); font-size: 15px; color: var(--text-primary);
+      outline: none; transition: all 0.2s ease, background 0.3s ease, border-color 0.3s ease;
+      box-shadow: var(--shadow-sm);
+    }
+    .hp-input::placeholder { color: var(--text-muted); }
+    .hp-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft), var(--shadow-sm); }
+    .hp-input-send {
+      position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+      width: 34px; height: 34px; border-radius: 8px; border: none;
+      background: var(--accent); display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.2s ease;
+    }
+    .hp-input-send:hover { transform: translateY(-50%) scale(1.06); filter: brightness(1.1); }
+
+    /* Upload zone */
+    .upload-zone {
+      width: 100%; max-width: 640px;
+      border: 1.5px dashed var(--border); border-radius: 12px;
+      padding: 18px 20px; display: flex; align-items: center; gap: 14px;
+      cursor: pointer; transition: all 0.2s ease, background 0.3s ease;
+      margin-bottom: 24px; position: relative; overflow: hidden;
+    }
+    .upload-zone:hover, .upload-zone.dragover {
+      border-color: var(--accent); background: var(--accent-soft);
+    }
+    .upload-zone.dragover { box-shadow: 0 0 0 3px var(--accent-soft), 0 0 20px var(--accent-soft); }
+    .upload-icon-wrap {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: var(--bg-subtle);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: background 0.2s ease;
+    }
+    .upload-zone:hover .upload-icon-wrap,
+    .upload-zone.dragover .upload-icon-wrap { background: var(--accent-soft); }
+    .upload-text { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }
+    .upload-text strong { color: var(--accent); font-weight: 600; }
+    .upload-text small { font-size: 11.5px; color: var(--text-muted); display: block; margin-top: 2px; }
+    .hp-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 640px; }
+    .hp-chip {
+      padding: 7px 14px; border-radius: 100px;
+      border: 1px solid var(--border); background: var(--bg-surface);
+      font-size: 13px; color: var(--text-secondary);
+      cursor: pointer; transition: all 0.2s ease; box-shadow: var(--shadow-sm);
+    }
+    .hp-chip:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+
+    /* ============================================================
+       PROJECT VIEW
+    ============================================================ */
+    .project-view { flex: 1; display: flex; flex-direction: column; overflow: hidden; animation: fadeSlideUp 0.3s ease both; }
+    .project-dashboard {
+      flex-shrink: 0; background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      padding: 18px 24px 20px;
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+    .project-titlebar { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; gap: 16px; }
+    .project-titlebar-left { min-width: 0; }
+    .project-title {
+      font-family: 'Fraunces', Georgia, serif;
+      font-size: 22px; font-weight: 600; letter-spacing: -0.5px;
+      color: var(--text-primary); line-height: 1.2; margin-bottom: 6px;
+      transition: color 0.3s ease;
+    }
+    .project-meta { display: flex; align-items: center; gap: 8px; }
+    .project-meta-dot { color: var(--text-muted); font-size: 12px; }
+    .project-meta-text { font-size: 12px; color: var(--text-muted); }
+    .project-actions { display: flex; gap: 8px; flex-shrink: 0; margin-top: 2px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px; border-radius: 8px;
+      font-size: 13px; font-weight: 500; cursor: pointer;
+      transition: all 0.18s ease; white-space: nowrap;
+    }
+    .btn-ghost { border: 1px solid var(--border); background: transparent; color: var(--text-secondary); }
+    .btn-ghost:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+    .btn-accent { border: 1px solid transparent; background: var(--accent); color: #111; font-weight: 600; }
+    .btn-accent:hover { filter: brightness(1.08); }
+    .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 12px; }
+    .metric-card {
+      background: var(--bg-elevated); border: 1px solid var(--border-subtle);
+      border-radius: 10px; padding: 13px 15px;
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+    .metric-card-label { font-size: 10px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 6px; }
+    .metric-card-value { font-size: 24px; font-weight: 700; color: var(--accent); letter-spacing: -0.8px; line-height: 1; margin-bottom: 4px; transition: color 0.3s ease; }
+    .metric-card-sub { font-size: 11px; color: var(--text-muted); }
+    .insights-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .insight-card {
+      background: var(--bg-elevated); border: 1px solid var(--border-subtle);
+      border-radius: 10px; padding: 12px 14px; border-top: 3px solid;
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+    .insight-card-key          { border-top-color: var(--accent); }
+    .insight-card-risk         { border-top-color: var(--red);    }
+    .insight-card-opportunity  { border-top-color: var(--green);  }
+    .insight-card-rec          { border-top-color: var(--blue);   }
+    .insight-type { font-size: 9.5px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
+    .insight-card-key         .insight-type { color: var(--accent); }
+    .insight-card-risk        .insight-type { color: var(--red);    }
+    .insight-card-opportunity .insight-type { color: var(--green);  }
+    .insight-card-rec         .insight-type { color: var(--blue);   }
+    .insight-body { font-size: 12px; line-height: 1.55; color: var(--text-secondary); }
+
+    /* ============================================================
+       AI CHAT WORKSPACE
+    ============================================================ */
+    .chat-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .chat-messages { flex: 1; overflow-y: auto; padding: 20px 24px; }
+    .chat-messages::-webkit-scrollbar { width: 4px; }
+    .chat-messages::-webkit-scrollbar-track { background: transparent; }
+    .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    .chat-row { display: flex; gap: 10px; margin-bottom: 18px; align-items: flex-start; }
+    .chat-row.user { flex-direction: row-reverse; }
+    .chat-avatar {
+      width: 30px; height: 30px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 2px;
+    }
+    .chat-row.user .chat-avatar { background: var(--accent); color: #111; }
+    .chat-row.ai   .chat-avatar { background: var(--bg-subtle); border: 1px solid var(--border); color: var(--text-secondary); font-size: 9px; letter-spacing: 0.5px; }
+    .chat-bubble { max-width: 74%; padding: 11px 15px; border-radius: 12px; font-size: 13.5px; line-height: 1.65; transition: background 0.3s ease, border-color 0.3s ease; }
+    .chat-row.user .chat-bubble { background: var(--accent-soft); border: 1px solid var(--accent-border); border-radius: 12px 2px 12px 12px; color: var(--text-primary); }
+    .chat-row.ai   .chat-bubble { background: var(--bg-surface); border: 1px solid var(--border); border-radius: 2px 12px 12px 12px; color: var(--text-primary); box-shadow: var(--shadow-sm); }
+    .chat-bubble h4 { font-size: 12px; font-weight: 700; color: var(--text-primary); letter-spacing: 0.2px; margin: 10px 0 5px; }
+    .chat-bubble h4:first-child { margin-top: 0; }
+    .chat-bubble p { margin-bottom: 6px; }
+    .chat-bubble p:last-child { margin-bottom: 0; }
+    .chat-bubble ul { padding-left: 18px; margin: 4px 0 8px; }
+    .chat-bubble li { margin-bottom: 4px; color: var(--text-secondary); }
+    .chat-bubble li strong { color: var(--text-primary); }
+    .chat-bubble strong { color: var(--text-primary); }
+    .ai-table { width: 100%; border-collapse: collapse; margin: 8px 0; font-size: 12.5px; border-radius: 8px; overflow: hidden; }
+    .ai-table th { text-align: left; padding: 7px 12px; background: var(--bg-subtle); color: var(--text-muted); font-size: 10.5px; font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; transition: background 0.3s ease; }
+    .ai-table td { padding: 8px 12px; border-top: 1px solid var(--border-subtle); color: var(--text-primary); transition: border-color 0.3s ease; }
+    .ai-table tr:hover td { background: var(--bg-hover); }
+    .ai-table .val { color: var(--accent); font-weight: 600; font-variant-numeric: tabular-nums; }
+    .typing-indicator { display: flex; align-items: center; gap: 4px; padding: 4px 0; }
+    .typing-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--text-muted); animation: bounce 1.4s infinite ease-in-out; }
+    .typing-dot:nth-child(1) { animation-delay: 0s; }
+    .typing-dot:nth-child(2) { animation-delay: 0.18s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.36s; }
+    @keyframes bounce { 0%,60%,100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-6px); opacity: 1; } }
+    .chat-input-area { flex-shrink: 0; border-top: 1px solid var(--border); padding: 12px 24px 18px; background: var(--bg-surface); transition: background 0.3s ease, border-color 0.3s ease; }
+    .quick-prompts { display: flex; gap: 7px; margin-bottom: 10px; flex-wrap: wrap; }
+    .quick-prompt { padding: 4px 12px; border-radius: 100px; border: 1px solid var(--border); background: var(--bg-subtle); font-size: 12px; color: var(--text-secondary); cursor: pointer; transition: all 0.15s ease; }
+    .quick-prompt:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+    .chat-input-row { display: flex; gap: 8px; align-items: flex-end; }
+    .chat-textarea { flex: 1; padding: 10px 14px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--bg-elevated); font-size: 14px; color: var(--text-primary); outline: none; resize: none; min-height: 42px; max-height: 130px; line-height: 1.5; transition: all 0.2s ease, background 0.3s ease, border-color 0.3s ease; }
+    .chat-textarea::placeholder { color: var(--text-muted); }
+    .chat-textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+    .chat-send { width: 42px; height: 42px; border-radius: 10px; border: none; background: var(--accent); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: all 0.18s ease; }
+    .chat-send:hover { filter: brightness(1.1); transform: scale(1.05); }
+    .chat-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--text-muted); padding: 48px 0; }
+    .chat-empty p { font-size: 14px; }
+
+    /* ============================================================
+       UPLOAD OVERLAY MODAL
+    ============================================================ */
+    .upload-overlay {
+      display: none;
+      position: fixed; inset: 0; z-index: 9000;
+      background: rgba(0,0,0,0.72);
+      align-items: center; justify-content: center;
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      animation: overlayFadeIn 0.25s ease;
+    }
+    .upload-overlay.visible { display: flex; }
+    @keyframes overlayFadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    .upload-modal {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px 48px;
+      width: 480px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+      box-shadow: var(--shadow-md), 0 0 60px rgba(245,158,11,0.08);
+      animation: modalSlideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+      transition: background 0.3s ease, border-color 0.3s ease;
+    }
+    @keyframes modalSlideUp {
+      from { opacity: 0; transform: translateY(24px) scale(0.95); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Animated file icon */
+    .upload-file-icon {
+      width: 72px; height: 72px;
+      border-radius: 16px;
+      background: var(--accent-soft);
+      border: 2px solid var(--accent-border);
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+      animation: fileIconBounce 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    @keyframes fileIconBounce {
+      from { transform: scale(0.4) rotate(-15deg); opacity: 0; }
+      to   { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+    .upload-file-icon svg { color: var(--accent); }
+
+    /* Particles */
+    .upload-particles {
+      position: absolute;
+      top: 50%; left: 50%;
+      width: 0; height: 0;
+      pointer-events: none;
+    }
+    .particle {
+      position: absolute;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      opacity: 0;
+    }
+    .particle-1 { animation: particle1 0.7s ease 0.2s both; }
+    .particle-2 { animation: particle2 0.7s ease 0.25s both; }
+    .particle-3 { animation: particle3 0.7s ease 0.3s both; }
+    .particle-4 { animation: particle4 0.7s ease 0.2s both; }
+    .particle-5 { animation: particle5 0.7s ease 0.28s both; }
+    .particle-6 { animation: particle6 0.7s ease 0.22s both; }
+    @keyframes particle1 { 0%{opacity:1;transform:translate(0,0)} 100%{opacity:0;transform:translate(50px,-50px)} }
+    @keyframes particle2 { 0%{opacity:1;transform:translate(0,0)} 100%{opacity:0;transform:translate(-55px,-40px)} }
+    @keyframes particle3 { 0%{opacity:1;transform:translate(0,0)} 100%{opacity:0;transform:translate(45px,55px)} }
+    @keyframes particle4 { 0%{opacity:1;transform:translate(0,0)} 100%{opacity:0;transform:translate(-40px,50px)} }
+    @keyframes particle5 { 0%{opacity:1;transform:translate(0,0)} 100%{opacity:0;transform:translate(60px,20px)} }
+    @keyframes particle6 { 0%{opacity:1;transform:translate(0,0)} 100%{opacity:0;transform:translate(-30px,-60px)} }
+
+    .upload-filename {
+      font-size: 14px; font-weight: 600;
+      color: var(--text-primary);
+      text-align: center; max-width: 340px;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+
+    /* Progress bar */
+    .progress-wrap {
+      width: 100%;
+      background: var(--bg-subtle);
+      border-radius: 100px;
+      height: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border-subtle);
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 100px;
+      background: linear-gradient(90deg, var(--accent), #FBBF24);
+      transition: width 0.08s linear;
+      position: relative;
+      overflow: hidden;
+    }
+    .progress-fill::after {
+      content: '';
+      position: absolute; top: 0; right: 0; bottom: 0;
+      width: 60px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4));
+      animation: progressShimmer 1s linear infinite;
+    }
+    @keyframes progressShimmer {
+      from { transform: translateX(-60px); }
+      to   { transform: translateX(60px); }
+    }
+
+    /* Status message */
+    .upload-status {
+      font-size: 15px; font-weight: 600;
+      color: var(--text-primary);
+      text-align: center;
+      min-height: 24px;
+      transition: opacity 0.3s ease;
+    }
+    .upload-status-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-align: center;
+      min-height: 18px;
+    }
+
+    /* Status icon states */
+    .upload-status-icon {
+      width: 28px; height: 28px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .status-icon-uploading { background: var(--blue-soft); color: var(--blue); }
+    .status-icon-analyzing { background: var(--accent-soft); color: var(--accent); animation: spin 1.5s linear infinite; }
+    .status-icon-complete   { background: var(--green-soft); color: var(--green); }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Checkmark animation */
+    .checkmark-circle {
+      width: 72px; height: 72px; border-radius: 50%;
+      background: var(--green-soft); border: 2px solid var(--green);
+      display: flex; align-items: center; justify-content: center;
+      animation: checkmarkBounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    @keyframes checkmarkBounce {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+    .checkmark-path {
+      stroke-dasharray: 40;
+      stroke-dashoffset: 40;
+      animation: drawCheck 0.4s ease 0.15s forwards;
+    }
+    @keyframes drawCheck {
+      to { stroke-dashoffset: 0; }
+    }
+
+    /* Global body drag overlay */
+    .body-dragover-hint {
+      display: none;
+      position: fixed; inset: 0; z-index: 8000;
+      border: 3px dashed var(--accent);
+      background: rgba(245,158,11,0.05);
+      pointer-events: none;
+      animation: borderPulse 1s ease infinite;
+    }
+    .body-dragover-hint.visible { display: block; }
+    @keyframes borderPulse {
+      0%,100% { opacity: 1; }
+      50%      { opacity: 0.5; }
+    }
+    .body-dragover-label {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--accent);
+      color: #111;
+      font-size: 16px; font-weight: 700;
+      padding: 14px 28px; border-radius: 12px;
+      display: flex; align-items: center; gap: 10px;
+    }
+
+    /* Scrollbars */
+    .main::-webkit-scrollbar { width: 4px; }
+    .main::-webkit-scrollbar-track { background: transparent; }
+    .main::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    .homepage::-webkit-scrollbar { width: 4px; }
+    .homepage::-webkit-scrollbar-track { background: transparent; }
+    .homepage::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  </style>
+</head>
+
+<body>
+
+<!-- ============================================================
+     BODY-LEVEL DRAG HINT OVERLAY
+============================================================ -->
+<div class="body-dragover-hint" id="bodyDragHint">
+  <div class="body-dragover-label">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+      <polyline points="17 8 12 3 7 8"/>
+      <line x1="12" y1="3" x2="12" y2="15"/>
+    </svg>
+    Drop to Analyse Document
+  </div>
+</div>
+
+<!-- ============================================================
+     UPLOAD PROCESSING OVERLAY
+============================================================ -->
+<div class="upload-overlay" id="uploadOverlay">
+  <div class="upload-modal" id="uploadModal">
+    <!-- Content injected dynamically -->
+  </div>
+</div>
+
+<div class="app">
+
+  <!-- ====================================================
+       GLOBAL TOP TOOLBAR
+  ==================================================== -->
+  <header class="toolbar">
+    <div class="toolbar-brand" onclick="showHomepage()" title="Go to home">
+      <div class="brand-mark">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+          <polyline points="2 17 12 22 22 17"/>
+          <polyline points="2 12 12 17 22 12"/>
+        </svg>
+      </div>
+      <span class="brand-name">Tender<em>.AI</em></span>
+    </div>
+    <div class="toolbar-sep"></div>
+    <div class="toolbar-metrics" id="toolbarMetrics">
+      <!-- Rendered by JS -->
+    </div>
+    <div class="toolbar-right">
+      <button class="icon-btn" id="themeBtn" onclick="toggleTheme()" title="Toggle light/dark mode">
+        <svg id="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+        <svg id="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ====================================================
+       BODY AREA
+  ==================================================== -->
+  <div class="body-area">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <button class="new-project-btn" onclick="triggerFileInput()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          New Project
+        </button>
+        <div class="sidebar-search">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="text" placeholder="Search projects…" oninput="filterProjects(this.value)" />
+        </div>
+      </div>
+      <div class="sidebar-section-label">Projects</div>
+      <div class="sidebar-projects" id="projectList"></div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main" id="mainContent"></main>
+
+  </div>
+</div>
+
+<!-- Hidden file input -->
+<input type="file" id="hiddenFileInput" style="display:none;" accept=".pdf,.doc,.docx,.xlsx,.xls" onchange="handleFileInputChange(this)">
+
+<script>
+/* ==========================================================
+   PORTFOLIO METRICS (live, updated after upload)
+========================================================== */
+let portfolio = {
+  totalProjects: 12,
+  portfolioValue: '$47.3M',
+  avgCost: '$3.94M',
+  avgPrelims: '8.2%',
+  avgDuration: '14.3 mo'
+};
+
+function renderToolbarMetrics() {
+  document.getElementById('toolbarMetrics').innerHTML = `
+    <div class="metric-pill"><span class="metric-pill-label">Total Projects</span><span class="metric-pill-value">${portfolio.totalProjects}</span></div>
+    <div class="metric-pill"><span class="metric-pill-label">Portfolio Value</span><span class="metric-pill-value">${portfolio.portfolioValue}</span></div>
+    <div class="metric-pill"><span class="metric-pill-label">Avg Cost</span><span class="metric-pill-value">${portfolio.avgCost}</span></div>
+    <div class="metric-pill"><span class="metric-pill-label">Avg Prelims</span><span class="metric-pill-value">${portfolio.avgPrelims}</span></div>
+    <div class="metric-pill"><span class="metric-pill-label">Avg Duration</span><span class="metric-pill-value">${portfolio.avgDuration}</span></div>
+  `;
+}
+
+/* ==========================================================
+   PROJECT DATA
+========================================================== */
+const PROJECTS = [
+  {
+    id: 1, name: "Westfield Moorabbin Extension", value: "$8.2M",
+    status: "Active", badgeClass: "badge-active",
+    detail: { value: "$8.2M", duration: "18 months", prelims: "9.1%", packages: "24",
+      insights: {
+        key:  "Three subcontractor quotes show significant variation in concrete supply rates — potential $140K saving through consolidation.",
+        risk: "Earthworks package has a 6-week lead time that conflicts with the current program start date.",
+        opportunity: "Joinery package received 5 competitive quotes — strong negotiating position. Lowest bid is 14% below budget.",
+        rec:  "Award structural steel to McNab Group. Their bid is $220K below next competitor with no material exclusions."
+      }
+    }, hasChat: true
+  },
+  {
+    id: 2, name: "Dandenong Council Civic Centre", value: "$5.7M",
+    status: "Under Review", badgeClass: "badge-review",
+    detail: { value: "$5.7M", duration: "12 months", prelims: "7.8%", packages: "18",
+      insights: {
+        key:  "Council procurement requirements add a 3-week approval window to all subcontractor awards.",
+        risk: "Structural steel lead times have extended to 14 weeks — program may be impacted.",
+        opportunity: "Electrical package is significantly under-tendered — only 2 quotes received. Consider re-advertising.",
+        rec:  "Commence early procurement of structural steel immediately to protect the program."
+      }
+    }, hasChat: false
+  },
+  {
+    id: 3, name: "Clayton Road Mixed-Use", value: "$3.1M",
+    status: "Complete", badgeClass: "badge-complete",
+    detail: { value: "$3.1M", duration: "10 months", prelims: "6.5%", packages: "14",
+      insights: {
+        key:  "Project delivered $87K under budget with 3 weeks to spare.",
+        risk: "Post-completion defects liability period remains active until June 2026.",
+        opportunity: "Client has indicated interest in Stage 2 expansion — estimated value $2.1M.",
+        rec:  "Schedule defects inspection for May 2026 to address items prior to liability expiry."
+      }
+    }, hasChat: false
+  },
+  {
+    id: 4, name: "Frankston Hospital Wing B", value: "$12.4M",
+    status: "Active", badgeClass: "badge-active",
+    detail: { value: "$12.4M", duration: "24 months", prelims: "10.2%", packages: "31",
+      insights: {
+        key:  "Healthcare compliance requirements add significant scope to mechanical and electrical packages.",
+        risk: "Infection control requirements during construction may impact productivity and extend the program.",
+        opportunity: "Bulk purchasing agreement across 4 hospital projects could yield 8–12% materials savings.",
+        rec:  "Engage an infection control consultant before finalising construction methodology."
+      }
+    }, hasChat: false
+  },
+  {
+    id: 5, name: "Cranbourne Logistics Hub", value: "$2.9M",
+    status: "Draft", badgeClass: "badge-draft",
+    detail: { value: "$2.9M", duration: "8 months", prelims: "5.9%", packages: "11",
+      insights: {
+        key:  "Preliminary design indicates significant earthworks scope — geotechnical report is pending.",
+        risk: "Site contamination risk from former industrial use — Phase 2 environmental audit required.",
+        opportunity: "Tilt-panel construction methodology could reduce structure costs by up to $180K.",
+        rec:  "Do not issue tender documentation until the environmental audit is complete."
+      }
+    }, hasChat: false
+  },
+  {
+    id: 6, name: "Springvale Town Centre Upgrade", value: "$4.6M",
+    status: "Under Review", badgeClass: "badge-review",
+    detail: { value: "$4.6M", duration: "14 months", prelims: "8.4%", packages: "20",
+      insights: {
+        key:  "Council has requested value engineering options to reduce project cost by 10%.",
+        risk: "Works within active retail precinct — significant traffic management and noise restrictions apply.",
+        opportunity: "Stage delivery approach could allow retail tenants to remain trading throughout construction.",
+        rec:  "Present 3 VE options to Council within 2 weeks — prioritise façade and landscaping scope."
+      }
+    }, hasChat: false
+  }
+];
+
+/* ==========================================================
+   PRE-LOADED CHAT (Westfield)
+========================================================== */
+const PRELOADED_CHAT = [
+  { role: 'user', content: 'Compare the two earthworks quotes and highlight any major differences.' },
+  {
+    role: 'ai',
+    html: `<p>Here's my analysis of the two earthworks submissions:</p>
+<h4>Key Differences</h4>
+<ul>
+  <li>Roberts Civil is <strong>$87K lower</strong> but excludes rock breaking — a significant scope gap</li>
+  <li>Terrain Group includes full rock allowance but their program is <strong>3 weeks longer</strong></li>
+</ul>
+<h4>Risks</h4>
+<ul>
+  <li>Roberts Civil exclusion could result in a <strong>$60–120K variation</strong> once on site</li>
+  <li>Neither quote addresses dewatering — this needs clarification before award</li>
+</ul>
+<h4>Opportunities</h4>
+<ul>
+  <li>Terrain Group's rate for bulk excavation (<strong>$38/m³</strong>) is competitive — worth negotiating on cartage</li>
+</ul>
+<h4>Recommendation</h4>
+<p>Award to <strong>Terrain Group</strong> subject to program alignment. The apparent saving with Roberts Civil is likely to erode post-contract.</p>`
+  },
+  { role: 'user', content: "What's the total risk exposure across this project?" },
+  {
+    role: 'ai',
+    html: `<p>Based on current documentation, total identified risk exposure is approximately <strong style="color:var(--accent)">$340K–$480K</strong>, broken down as:</p>
+<table class="ai-table">
+  <thead><tr><th>Risk Item</th><th>Exposure</th></tr></thead>
+  <tbody>
+    <tr><td>Earthworks rock breaking</td><td class="val">$60–120K</td></tr>
+    <tr><td>Dewatering (unaddressed)</td><td class="val">$40–80K</td></tr>
+    <tr><td>Concrete rate variation</td><td class="val">$80–140K</td></tr>
+    <tr><td>Program delay buffer</td><td class="val">$160K (prelim impact)</td></tr>
+  </tbody>
+</table>
+<p><strong>Recommendation:</strong> Flag these items in your next cost report. Consider requesting revised pricing from Roberts Civil inclusive of rock breaking before formally closing out that package.</p>`
+  }
+];
+
+/* ==========================================================
+   CHAT HISTORY STORE (persists across navigation)
+========================================================== */
+const chatHistory = {};
+// Seed Westfield with preloaded chat
+chatHistory[1] = PRELOADED_CHAT.map(m => ({ ...m }));
+
+/* ==========================================================
+   CANNED AI RESPONSES
+========================================================== */
+const CANNED = [
+  `<p>Great question. Based on my analysis of the current documentation:</p>
+<h4>Summary</h4>
+<p>The package appears <strong>competitively priced</strong> against current market benchmarks. I've identified 3 key areas for your attention before making a final award decision.</p>
+<h4>Next Steps</h4>
+<ul>
+  <li>Request clarification on scope exclusions from the lower bidder</li>
+  <li>Verify program alignment with the preferred subcontractor</li>
+  <li>Confirm insurance and compliance documentation is current</li>
+</ul>`,
+  `<p>Here's my risk profile for this package:</p>
+<h4>High Priority</h4>
+<ul>
+  <li><strong>Scope gaps</strong> identified in 2 of 4 submissions — potential post-contract variations of $40–80K</li>
+  <li><strong>Program risk:</strong> Preferred contractor has overlapping commitments in Q3</li>
+</ul>
+<h4>Recommendation</h4>
+<p>Proceed with the second-ranked bidder pending confirmation of the lead contractor's availability. The <strong>$34K premium</strong> is justified given the reduced program risk.</p>`,
+  `<p>Comparing all received quotes:</p>
+<table class="ai-table">
+  <thead><tr><th>Subcontractor</th><th>Bid Value</th><th>vs Budget</th></tr></thead>
+  <tbody>
+    <tr><td>Preferred Bidder A</td><td class="val">$287K</td><td style="color:var(--green);font-weight:600;">−8.2%</td></tr>
+    <tr><td>Bidder B</td><td class="val">$312K</td><td style="color:var(--text-muted);">−0.2%</td></tr>
+    <tr><td>Bidder C</td><td class="val">$341K</td><td style="color:var(--red);font-weight:600;">+8.9%</td></tr>
+  </tbody>
+</table>
+<p><strong>Recommendation:</strong> Award to Bidder A subject to scope clarification. Ensure rock breaking and dewatering allowances are confirmed in writing before execution.</p>`
+];
+let cannedIdx = 0;
+
+/* ==========================================================
+   STATE
+========================================================== */
+let activeId = null;
+let nextProjectId = 100;
+
+/* ==========================================================
+   SIDEBAR
+========================================================== */
+function renderSidebar(filter = '', highlightId = null) {
+  const lower = filter.toLowerCase();
+  const items = PROJECTS.filter(p => p.name.toLowerCase().includes(lower));
+  document.getElementById('projectList').innerHTML = items.map(p => `
+    <div class="project-item ${activeId === p.id ? 'active' : ''} ${p.id === highlightId ? 'newly-added' : ''}"
+         id="proj-item-${p.id}"
+         onclick="selectProject(${p.id})">
+      <div class="project-item-row">
+        <span class="project-item-name">${p.name}</span>
+        <span class="badge ${p.badgeClass}">${p.status}</span>
+      </div>
+      <div class="project-item-meta">
+        <span class="project-item-value">${p.value}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function filterProjects(val) { renderSidebar(val); }
+
+/* ==========================================================
+   ROUTING
+========================================================== */
+function selectProject(id) {
+  activeId = id;
+  renderSidebar();
+  const project = PROJECTS.find(p => p.id === id);
+  renderProjectView(project);
+}
+
+function showHomepage() {
+  activeId = null;
+  renderSidebar();
+  renderHomepage();
+}
+
+/* ==========================================================
+   HOMEPAGE
+========================================================== */
+function renderHomepage() {
+  document.getElementById('mainContent').innerHTML = `
+    <div class="homepage">
+      <div class="hp-eyebrow">AI-Powered Tender Intelligence</div>
+      <h1 class="hp-headline">Your AI<br><em>Tender Analyst</em></h1>
+      <p class="hp-sub">Drop in a tender document or ask a question to get started.</p>
+
+      <div class="hp-input-wrap">
+        <input class="hp-input" type="text"
+          placeholder="Ask anything about your tenders, quotes, or subcontractors…"
+          onkeydown="if(event.key==='Enter') selectProject(1)"
+        />
+        <button class="hp-input-send" onclick="selectProject(1)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="upload-zone" id="homeUploadZone"
+           ondragover="event.preventDefault(); this.classList.add('dragover');"
+           ondragleave="this.classList.remove('dragover');"
+           ondrop="event.preventDefault(); this.classList.remove('dragover'); handleFileDrop(event);"
+           onclick="triggerFileInput()">
+        <div class="upload-icon-wrap">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/>
+            <line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+        </div>
+        <div class="upload-text">
+          <strong>Drop tender documents here</strong> — or click to browse
+          <small>Supports PDF, DOCX, XLSX · Up to 50 MB per file</small>
+        </div>
+      </div>
+
+      <div class="hp-chips">
+        <button class="hp-chip" onclick="selectProject(1)">⚖️ Compare my two earthworks quotes</button>
+        <button class="hp-chip" onclick="selectProject(1)">⚠️ What are the risks in this tender?</button>
+        <button class="hp-chip" onclick="selectProject(1)">🏆 Which subcontractor should I award?</button>
+        <button class="hp-chip" onclick="selectProject(1)">📄 Summarise this package</button>
+      </div>
+    </div>
+  `;
+}
+
+/* ==========================================================
+   PROJECT VIEW
+========================================================== */
+function renderProjectView(project) {
+  const d = project.detail;
+
+  // Render stored chat messages for this project
+  const history = chatHistory[project.id] || [];
+  let messagesHTML = history.map(msg => buildMessageHTML(msg.role, msg.content || null, msg.html || null)).join('');
+
+  document.getElementById('mainContent').innerHTML = `
+    <div class="project-view">
+      <div class="project-dashboard">
+        <div class="project-titlebar">
+          <div class="project-titlebar-left">
+            <h2 class="project-title">${project.name}</h2>
+            <div class="project-meta">
+              <span class="badge ${project.badgeClass}">${project.status}</span>
+              <span class="project-meta-dot">·</span>
+              <span class="project-meta-text">Last updated today</span>
+            </div>
+          </div>
+          <div class="project-actions">
+            <button class="btn btn-ghost">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Export Report
+            </button>
+            <button class="btn btn-accent">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Award Package
+            </button>
+          </div>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-card-label">Project Value</div>
+            <div class="metric-card-value">${d.value}</div>
+            <div class="metric-card-sub">Contracted</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-card-label">Program Duration</div>
+            <div class="metric-card-value">${d.duration}</div>
+            <div class="metric-card-sub">On schedule</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-card-label">Prelims %</div>
+            <div class="metric-card-value">${d.prelims}</div>
+            <div class="metric-card-sub">Of contract value</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-card-label">Trade Packages</div>
+            <div class="metric-card-value">${d.packages}</div>
+            <div class="metric-card-sub">Total scoped</div>
+          </div>
+        </div>
+
+        <div class="insights-grid">
+          <div class="insight-card insight-card-key">
+            <div class="insight-type">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Key Insight
+            </div>
+            <div class="insight-body">${d.insights.key}</div>
+          </div>
+          <div class="insight-card insight-card-risk">
+            <div class="insight-type">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              Risk
+            </div>
+            <div class="insight-body">${d.insights.risk}</div>
+          </div>
+          <div class="insight-card insight-card-opportunity">
+            <div class="insight-type">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              Opportunity
+            </div>
+            <div class="insight-body">${d.insights.opportunity}</div>
+          </div>
+          <div class="insight-card insight-card-rec">
+            <div class="insight-type">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+              Recommendation
+            </div>
+            <div class="insight-body">${d.insights.rec}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Chat -->
+      <div class="chat-area">
+        <div class="chat-messages" id="chatMessages">
+          ${messagesHTML || `
+            <div class="chat-empty">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.3"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              <p>Ask a question about this project to begin your analysis.</p>
+            </div>
+          `}
+        </div>
+        <div class="chat-input-area">
+          <div class="quick-prompts">
+            <button class="quick-prompt" onclick="fillPrompt('Compare documents')">Compare documents</button>
+            <button class="quick-prompt" onclick="fillPrompt('Highlight risks')">Highlight risks</button>
+            <button class="quick-prompt" onclick="fillPrompt('Which subcontractor is better?')">Which is better?</button>
+            <button class="quick-prompt" onclick="fillPrompt('Summarise this package')">Summarise package</button>
+          </div>
+          <div class="chat-input-row">
+            <textarea class="chat-textarea" id="chatInput"
+              placeholder="Ask about quotes, risks, packages, or subcontractors…"
+              rows="1"
+              onkeydown="handleKey(event)"
+              oninput="autoResize(this)"
+            ></textarea>
+            <button class="chat-send" onclick="sendMessage()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  requestAnimationFrame(() => {
+    const el = document.getElementById('chatMessages');
+    if (el) el.scrollTop = el.scrollHeight;
+  });
+}
+
+/* ==========================================================
+   CHAT HELPERS
+========================================================== */
+function buildMessageHTML(role, textContent, htmlContent) {
+  if (role === 'user') {
+    return `<div class="chat-row user">
+      <div class="chat-avatar">N</div>
+      <div class="chat-bubble">${escapeHTML(textContent)}</div>
+    </div>`;
+  }
+  return `<div class="chat-row ai">
+    <div class="chat-avatar">AI</div>
+    <div class="chat-bubble">${htmlContent}</div>
+  </div>`;
+}
+
+function escapeHTML(str) {
+  if (!str) return '';
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function fillPrompt(text) {
+  const el = document.getElementById('chatInput');
+  if (!el) return;
+  el.value = text; el.focus(); autoResize(el);
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 130) + 'px';
+}
+
+function handleKey(event) {
+  if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); sendMessage(); }
+}
+
+function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const messages = document.getElementById('chatMessages');
+  if (!input || !messages || !input.value.trim()) return;
+  const text = input.value.trim();
+  input.value = ''; input.style.height = 'auto';
+
+  // Persist to history
+  if (!chatHistory[activeId]) chatHistory[activeId] = [];
+  chatHistory[activeId].push({ role: 'user', content: text });
+
+  // Remove empty state
+  const empty = messages.querySelector('.chat-empty');
+  if (empty) empty.remove();
+
+  // Append user message
+  messages.insertAdjacentHTML('beforeend', buildMessageHTML('user', text, null));
+  messages.scrollTop = messages.scrollHeight;
+
+  // Typing indicator
+  const typingId = 'typing-' + Date.now();
+  messages.insertAdjacentHTML('beforeend', `
+    <div class="chat-row ai" id="${typingId}">
+      <div class="chat-avatar">AI</div>
+      <div class="chat-bubble">
+        <div class="typing-indicator">
+          <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+        </div>
+      </div>
+    </div>`);
+  messages.scrollTop = messages.scrollHeight;
+
+  setTimeout(() => {
+    const tEl = document.getElementById(typingId);
+    if (tEl) tEl.remove();
+    const aiHtml = CANNED[cannedIdx % CANNED.length];
+    cannedIdx++;
+    // Persist AI response
+    chatHistory[activeId].push({ role: 'ai', html: aiHtml });
+    messages.insertAdjacentHTML('beforeend', buildMessageHTML('ai', null, aiHtml));
+    messages.scrollTop = messages.scrollHeight;
+  }, 1200 + Math.random() * 600);
+}
+
+/* ==========================================================
+   THEME TOGGLE
+========================================================== */
+function toggleTheme() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.getElementById('icon-sun').style.display  = isDark ? 'none'  : 'block';
+  document.getElementById('icon-moon').style.display = isDark ? 'block' : 'none';
+}
+
+/* ==========================================================
+   FILE UPLOAD — DRAG & DROP
+========================================================== */
+function triggerFileInput() {
+  document.getElementById('hiddenFileInput').click();
+}
+
+function handleFileInputChange(input) {
+  if (input.files && input.files[0]) {
+    startUploadFlow(input.files[0].name);
+    input.value = ''; // reset so same file can be re-selected
+  }
+}
+
+function handleFileDrop(event) {
+  const files = event.dataTransfer.files;
+  if (files && files.length > 0) {
+    startUploadFlow(files[0].name);
+  }
+}
+
+// Body-level drag-over detection
+let bodyDragCounter = 0;
+document.addEventListener('dragenter', (e) => {
+  bodyDragCounter++;
+  if (bodyDragCounter === 1) document.getElementById('bodyDragHint').classList.add('visible');
+});
+document.addEventListener('dragleave', (e) => {
+  bodyDragCounter--;
+  if (bodyDragCounter <= 0) {
+    bodyDragCounter = 0;
+    document.getElementById('bodyDragHint').classList.remove('visible');
+  }
+});
+document.addEventListener('dragover', (e) => e.preventDefault());
+document.addEventListener('drop', (e) => {
+  e.preventDefault();
+  bodyDragCounter = 0;
+  document.getElementById('bodyDragHint').classList.remove('visible');
+  const files = e.dataTransfer.files;
+  if (files && files.length > 0) startUploadFlow(files[0].name);
+});
+
+/* ==========================================================
+   UPLOAD FLOW — ANIMATION SEQUENCE
+========================================================== */
+function startUploadFlow(filename) {
+  const modal = document.getElementById('uploadModal');
+  const overlay = document.getElementById('uploadOverlay');
+
+  // Phase 1: Show modal with upload progress
+  modal.innerHTML = `
+    <div class="upload-file-icon">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/>
+        <line x1="16" y1="17" x2="8" y2="17"/>
+        <polyline points="10 9 9 9 8 9"/>
+      </svg>
+      <div class="upload-particles">
+        <div class="particle particle-1"></div>
+        <div class="particle particle-2"></div>
+        <div class="particle particle-3"></div>
+        <div class="particle particle-4"></div>
+        <div class="particle particle-5"></div>
+        <div class="particle particle-6"></div>
+      </div>
+    </div>
+    <div class="upload-filename">${escapeHTML(filename || 'tender_document.pdf')}</div>
+    <div style="width:100%;">
+      <div class="progress-wrap">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px;">
+        <span style="font-size:11px;color:var(--text-muted);" id="progressLabel">Uploading…</span>
+        <span style="font-size:11px;color:var(--text-muted);font-variant-numeric:tabular-nums;" id="progressPct">0%</span>
+      </div>
+    </div>
+    <div class="upload-status" id="uploadStatus" style="opacity:0;">—</div>
+    <div class="upload-status-sub" id="uploadStatusSub"></div>
+  `;
+
+  overlay.classList.add('visible');
+
+  // Animate upload progress 0→100%
+  animateBar('progressFill', 'progressPct', 0, 100, 1600, () => {
+    setProgressLabel('Upload complete');
+    setStatus('✅ Document Uploaded Successfully', 'Preparing analysis engine…');
+
+    setTimeout(() => {
+      // Switch to analysis phase
+      document.getElementById('progressFill').style.width = '0%';
+      document.getElementById('progressPct').textContent = '0%';
+      setProgressLabel('Analysing document…');
+      setStatus('🔍 Analysing Document', 'Extracting trade packages, subcontractor data and risk flags…');
+
+      animateBar('progressFill', 'progressPct', 0, 100, 2200, () => {
+        setProgressLabel('Analysis complete');
+
+        // Phase 3: Completion — show checkmark
+        setTimeout(() => {
+          modal.innerHTML = `
+            <div class="checkmark-circle">
+              <svg width="34" height="34" viewBox="0 0 52 52" fill="none">
+                <path class="checkmark-path"
+                  d="M14 27 L22 35 L38 19"
+                  stroke="var(--green)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"
+                  fill="none"/>
+              </svg>
+            </div>
+            <div class="upload-status" style="color:var(--green);">✅ Document Analysis Complete</div>
+            <div class="upload-status-sub">New project added to your portfolio</div>
+          `;
+
+          // After 1.2s close modal and add new project
+          setTimeout(() => {
+            overlay.classList.remove('visible');
+            addNewProject(filename);
+          }, 1200);
+
+        }, 600);
+      });
+    }, 900);
+  });
+}
+
+function animateBar(fillId, pctId, from, to, duration, callback) {
+  const fill = document.getElementById(fillId);
+  const pct  = document.getElementById(pctId);
+  if (!fill) return;
+  const start = performance.now();
+  function step(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    // Ease in-out
+    const eased = progress < 0.5
+      ? 2 * progress * progress
+      : 1 - Math.pow(-2 * progress + 2, 2) / 2;
+    const val = from + (to - from) * eased;
+    fill.style.width = val + '%';
+    if (pct) pct.textContent = Math.round(val) + '%';
+    if (progress < 1) { requestAnimationFrame(step); }
+    else { if (callback) callback(); }
+  }
+  requestAnimationFrame(step);
+}
+
+function setProgressLabel(text) {
+  const el = document.getElementById('progressLabel');
+  if (el) el.textContent = text;
+}
+
+function setStatus(text, sub) {
+  const el = document.getElementById('uploadStatus');
+  const subEl = document.getElementById('uploadStatusSub');
+  if (el) {
+    el.style.opacity = '0';
+    setTimeout(() => {
+      el.textContent = text;
+      el.style.opacity = '1';
+    }, 200);
+  }
+  if (subEl && sub !== undefined) subEl.textContent = sub;
+}
+
+/* ==========================================================
+   ADD NEW PROJECT AFTER UPLOAD
+========================================================== */
+function addNewProject(filename) {
+  const id = nextProjectId++;
+
+  // Derive a project name from the filename (strip extension, title-case)
+  let rawName = (filename || 'New Tender Document')
+    .replace(/\.[^.]+$/, '')           // remove extension
+    .replace(/[-_]/g, ' ')             // dashes/underscores → spaces
+    .replace(/\b\w/g, c => c.toUpperCase()); // title case
+
+  // Use a polished fixed name for demo purposes
+  const projectName = "Brighton Waterfront Precinct";
+  const projectValue = "$7.2M";
+
+  const newProject = {
+    id: id,
+    name: projectName,
+    value: projectValue,
+    status: "Active",
+    badgeClass: "badge-new",
+    detail: {
+      value: projectValue,
+      duration: "16 months",
+      prelims: "8.7%",
+      packages: "22",
+      insights: {
+        key:  "Four structural packages show strong competition — lowest bids are 12% below budget across the board.",
+        risk: "Façade subcontractor shortlisted has concurrent commitments on two CBD towers — program conflict likely in Q3.",
+        opportunity: "Combined procurement of lifts and mechanical services across floors 1–18 could generate $95K in savings.",
+        rec:  "Issue Letters of Intent to preferred hydraulics and fire subcontractors immediately — lead times exceed 10 weeks."
+      }
+    },
+    hasChat: false
+  };
+
+  PROJECTS.push(newProject);
+
+  // Update global portfolio metrics
+  portfolio.totalProjects = 13;
+  portfolio.portfolioValue = '$54.5M';
+  portfolio.avgCost = '$4.19M';
+  portfolio.avgPrelims = '8.3%';
+  portfolio.avgDuration = '14.5 mo';
+  renderToolbarMetrics();
+
+  // Animate metric pills
+  const pills = document.querySelectorAll('.metric-pill');
+  pills.forEach(p => {
+    p.style.transition = 'background 0.1s ease';
+    p.style.background = 'var(--accent-soft)';
+    p.style.borderColor = 'var(--accent-border)';
+    setTimeout(() => {
+      p.style.background = '';
+      p.style.borderColor = '';
+      p.style.transition = '';
+    }, 800);
+  });
+
+  // Render sidebar with new project highlighted, then navigate to it
+  activeId = id;
+  renderSidebar('', id);
+  renderProjectView(newProject);
+
+  // Scroll new item into view
+  setTimeout(() => {
+    const item = document.getElementById(`proj-item-${id}`);
+    if (item) item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, 200);
+}
+
+/* ==========================================================
+   INIT
+========================================================== */
+renderToolbarMetrics();
+renderSidebar();
+renderHomepage();
+</script>
+</body>
+</html>
